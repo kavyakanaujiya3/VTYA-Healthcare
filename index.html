@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VTYA Healthcare</title>
+    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        .btn-translate, .btn-revert {
+            margin: 0 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo" data-i18n="logo">VTYA Healthcare</div>
+        <nav>
+            <ul>
+                <li><a href="#home" data-i18n="nav.home">Home</a></li>
+                <li><a href="#about" data-i18n="nav.about">About</a></li>
+                <li><a href="#affordability" data-i18n="nav.affordability">Affordability</a></li>
+                <li><a href="#rehabilitation" data-i18n="nav.rehabilitation">Rehabilitation</a></li>
+                <li><a href="#services" data-i18n="nav.services">Services</a></li>
+                <li><a href="#checkups" data-i18n="nav.checkups">Health Checkups</a></li>
+                <li><a href="#health-management" data-i18n="nav.healthManagement">Health Management</a></li>
+                <li><a href="#feedback" data-i18n="nav.feedback">Feedback</a></li>
+                <li><a href="#contact" data-i18n="nav.contact">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section id="home" class="hero">
+        <h1>Welcome to VTYA Healthcare</h1>
+        <p>Your Partner in Affordable and Enjoyable Healthcare Solutions</p>
+        <button onclick="scrollToSection('about')">Learn More</button>
+    </section>
+   
+    <section id="about">
+        <h2>About Us</h2>
+        <p>VTYA Healthcare is dedicated to providing affordable and enjoyable healthcare solutions, focusing on rural areas and rehabilitation processes. This platform is designed to provide you with comprehensive information about healthcare services and resources available to you. Here, you can explore details about various healthcare programs, initiatives, and facilities offered by the government to ensure the well-being of citizens across the nation.</p>
+    </section>
+    
+    <div class="map-head">
+        <h2>Nearest Hospitals</h2>
+       </div>
+       <div id="sidebar">
+        <h2>Nearby Hospitals</h2>
+        <ul id="hospital-list"></ul>
+    </div>
+    <div id="map"></div>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        var map = L.map('map').setView([51.505, -0.09], 13);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        function onLocationFound(e) {
+            var radius = e.accuracy / 2;
+
+            L.marker(e.latlng).addTo(map)
+                .bindPopup("You are within " + radius + " meters from this point").openPopup();
+
+            L.circle(e.latlng, radius).addTo(map);
+
+            fetch(`https://overpass-api.de/api/interpreter?data=[out:json];node(around:5000,${e.latitude},${e.longitude})[amenity=hospital];out;`)
+                .then(response => response.json())
+                .then(data => {
+                    var hospitalList = document.getElementById('hospital-list');
+                    hospitalList.innerHTML = '';
+
+                    data.elements.forEach(element => {
+                        var hospitalItem = document.createElement('li');
+                        hospitalItem.textContent = element.tags.name || 'Unnamed Hospital';
+                        hospitalList.appendChild(hospitalItem);
+
+                        L.marker([element.lat, element.lon]).addTo(map)
+                            .bindPopup(element.tags.name || 'Hospital');
+                    });
+                });
+        }
+
+        function onLocationError(e) {
+            alert(e.message);
+        }
+
+        map.on('locationfound', onLocationFound);
+        map.on('locationerror', onLocationError);
+
+        map.locate({setView: true, maxZoom: 16});
+    </script>    
+
+    <section id="affordability">
+        <h2>Affordability</h2>
+        <p>Addressing rising healthcare costs in rural areas through innovative solutions. Our mission is to ensure that everyone has access to high-quality healthcare without financial burden. We are committed to providing affordable medical services, comprehensive insurance plans, and support programs to make healthcare accessible for every citizen. Explore our resources to find the best options tailored to your needs and budget. Your health is our priority, and we're here to help you every step of the way.</p>
+        <div class="solution">
+            <h3>Telemedicine and Mobile Health Clinics</h3>
+            <p>Bringing healthcare services to remote areas. Receive medical consultations, diagnoses, and follow-ups from the comfort of your home through our secure telemedicine platform. Our Mobile Health Clinics bring essential medical services directly to your community, ensuring that everyone has access to care, regardless of location. Stay connected to your health with convenient and innovative solutions designed to meet your needs.</p>
+        </div>
+        <div class="solution">
+            <h3>Community Health Workers and Education</h3>
+            <p>Empowering local residents to provide basic healthcare services. Empowering our communities through education and support is at the heart of our healthcare mission. Our dedicated Community Health Workers (CHWs) provide personalized care, guidance, and resources to help you navigate your health journey. Through community outreach and health education programs, we aim to raise awareness and promote healthy lifestyles. Together, we can build a healthier, informed community.</p>
+        </div>
+        <div class="solution">
+            <h3>Subsidies and Sliding Scale Payment Systems</h3>
+            <p>Making healthcare affordable for everyone. We believe that financial barriers should never stand in the way of accessing healthcare. Our subsidies and sliding scale payment systems are designed to make healthcare affordable for everyone. Explore our programs to find the support you need to manage your health without financial stress.</p>
+        </div>
+        <div class="solution">
+            <h3>Partnerships with Non-Profits and NGOs</h3>
+            <p>Collaborating to provide comprehensive healthcare solutions. Collaboration is key to enhancing healthcare services and reaching underserved communities. Our partnerships with non-profits and NGOs enable us to extend our reach and provide comprehensive care to those who need it most. Together, we work to address health disparities, promote wellness, and deliver vital resources and services.</p>
+        </div>
+    </section>
+
+    <section id="rehabilitation">
+        <h2>Rehabilitation</h2>
+        <p>Incorporating enjoyable activities into the recovery process.</p>
+        <div class="solution">
+            <h3>Creative Therapies</h3>
+            <p>Art and music therapy programs for expression and joy. Unlock the healing power of creativity with our comprehensive Creative Therapies program. Integrating art, music, dance, and other expressive therapies, we provide innovative approaches to mental and emotional well-being. These therapies offer unique ways to manage stress, cope with trauma, and enhance overall health.
+            </p>
+        </div>
+        <div class="solution">
+            <h3>Physical Activities</h3>
+            <p>Exercise and sports programs tailored for recovery. Stay active and healthy with our wide range of physical activity programs. Regular exercise is essential for maintaining physical and mental well-being. Whether you prefer walking, cycling, swimming, or group fitness classes, we have options to suit all ages and fitness levels. Explore our resources and community programs designed to help you integrate physical activity into your daily routine and enjoy a healthier lifestyle.</p>
+        </div>
+        <div class="solution">
+            <h3>Social and Community Engagement</h3>
+            <p>Group activities and workshops for social interaction. Building strong, supportive communities is essential for overall health and well-being.From support groups and community events to volunteer opportunities and local initiatives, we encourage everyone to get involved and make a positive impact. Join us in creating a healthier, more connected community.</p>
+        </div>
+        <div class="solution">
+            <h3>Technology Integration</h3>
+            <p>Using VR and gamification to make recovery engaging. Embrace the future of healthcare with our cutting-edge technology integration. From electronic health records and telehealth services to advanced diagnostic tools and mobile health apps, we leverage the latest technologies to enhance patient care and streamline medical services.Discover how technology is transforming the way we deliver and manage health services for a better tomorrow.</p>
+        </div>
+        <h3>Blogs on Drug Addiction</h3>
+        <p>Stay informed and find support with our comprehensive blogs on drug addiction. Our expert writers share valuable insights, personal stories, and the latest research on addiction prevention, treatment, and recovery. Explore a wide range of topics to better understand the complexities of drug addiction and discover resources to help you or your loved ones on the path to recovery. Join our community in the fight against addiction through education and awareness</p>
+        <div class="blog">
+            <h4>Understanding Drug Addiction in Youth</h4>
+            <p>Exploring the causes and effects of drug addiction among young people. Addressing drug addiction in youth requires a compassionate and informed approach. Our resources provide essential information on the signs, causes, and impacts of substance abuse among young people. Learn about the risk factors, preventive measures, and effective treatment options available. By understanding the challenges faced by youth, we can work together to support their health and well-being, offering guidance and resources to help them overcome addiction and lead healthier lives.</p>
+        </div>
+        <div class="blog">
+            <h4>How to Overcome Drug Addiction</h4>
+            <p>Steps and strategies to leave drug addiction behind and lead a healthy life. Overcoming drug addiction is a challenging but achievable goal with the right support and resources. Our comprehensive guide offers practical steps, including seeking professional treatment, building a support network, and adopting healthy coping strategies. Explore available therapies, support groups, and educational materials designed to empower individuals on their recovery journey. Together, we can provide the tools and encouragement needed to achieve lasting recovery and reclaim a healthier, fulfilling life.</p>
+        </div>
+    </section>
+
+    <section id="services">
+        <h2> Our Services</h2>
+        <div class="service">
+            <h3 >Home Checkup Booking</h3>
+            <p>Book a health checkup from the comfort of your home. Experience convenient and personalized healthcare with our home checkup service. Schedule a visit from a qualified healthcare professional right to your doorstep, ensuring you receive thorough and attentive care without leaving your home. Book your appointment today and enjoy the ease and comfort of receiving quality medical care at home.</p>
+            <button onclick="document.location='healthCheckup.html'">Book Now</button>
+        </div>
+        <div class="service">
+            <h3>Online Consultation</h3>
+            <p>Consult with our doctors online from anywhere. Access expert medical advice from the comfort of your home with our online consultation services. Connect with healthcare professionals through secure, virtual appointments for consultations, diagnoses, and follow-ups. Our online platform offers a convenient and efficient way to address your health concerns, receive treatment recommendations, and manage your care without the need for in-person visits. Book your online consultation today and take a proactive step towards better health.</p>
+            <button onclick="document.location='consultation.html'">Consult Now</button>
+        </div>
+        <div class="service">
+            <h3>Online OPD/Appointment Booking</h3>
+            <p>Book appointments with hospitals and dispensaries online. Simplify your healthcare experience with our Online OPD/Appointment Booking system. Easily schedule outpatient department visits and specialist consultations at your convenience.</p>
+            <button onclick="document.location='opd.html'">Book Appointment</button>
+        </div>
+    </section>
+
+    <section id="checkups">
+        <h2>Medical Treatments</h2>
+        <p>Medical Treatments Provided by Hospitals
+            Comprehensive Medical Care
+            Hospitals play a crucial role in providing a wide range of medical treatments aimed at diagnosing, managing, and treating various health conditions. These treatments encompass diagnostic procedures, therapeutic interventions, and pharmaceutical solutions tailored to individual patient needs.</p>
+        <div class="hospital">
+            <h3>Diagnostic Tests</h3>
+            <p>1. Imaging Services: Hospitals offer advanced imaging technologies such as X-rays, CT scans, MRI scans, and ultrasound to visualize internal structures and diagnose conditions ranging from fractures to tumors.</p>
+
+                <p>2. Laboratory Tests: Extensive laboratory facilities enable hospitals to conduct blood tests, urine analysis, genetic testing, and other specialized tests crucial for diagnosing diseases like diabetes, infections, and genetic disorders.</p>
+        </div>
+        <div class="hospital">
+            <h3>Specialized Medical Procedures</h3>
+            <p>1. Surgical Services: Hospitals provide a spectrum of surgical procedures, including minimally invasive surgeries and complex interventions performed by skilled surgeons. These encompass orthopedic surgeries, cardiac surgeries, neurosurgeries, and more.</p>
+
+                <p>2. Interventional Procedures: Techniques like cardiac catheterization, endoscopy, and interventional radiology are employed to diagnose and treat conditions without major surgery, ensuring quicker recovery times and reduced risks.</p>
+        </div>
+        <div class="hospital">
+            <h3>Specialized Care Unit</h3>
+            <p>1. Intensive Care Units (ICUs): Hospitals maintain ICUs equipped with advanced monitoring and life-support systems for critically ill patients requiring intensive medical care following surgeries, trauma, or severe illnesses.</p>
+            <p>2. Neonatal and Pediatric Care: Dedicated units cater to the unique medical needs of newborns, infants, and children, providing specialized care for premature births, congenital conditions, and pediatric emergencies.</p>
+        </div>
+        <div class="hospital">
+            <h3>Pharmaceutical Services</h3>
+            <p>1. Medication Management: Hospitals maintain comprehensive pharmacies to dispense medications prescribed by healthcare providers. This includes antibiotics, pain management drugs, chemotherapy agents, and medications for chronic conditions.
+            </p>
+            <p>2. Infusion Therapy: Specialized infusion centers within hospitals administer intravenous medications and fluids under medical supervision for conditions like autoimmune diseases, cancer, and infections.</p>
+        </div>
+        <!-- Add more hospitals/dispensaries as needed -->
+    </section>
+
+    <section id="health-management">
+        <h2>Personal Health Management</h2>
+        <p>Take control of your well-being with our comprehensive Personal Health Management resources.From tracking your medical history and scheduling checkups to receiving personalized health tips, we provide everything you need to manage your health effectively.</p>
+        <button onclick="document.location='assistantForm.html'">Fill this Form</button>
+        <div class="health-info">
+            <h3>Medical Checkups Awareness</h3>
+            <p>Get reminders and recommendations based on your previous medical checkups. Regular medical checkups are vital for early detection and prevention of health issues. Our awareness campaign highlights the importance of routine health screenings and assessments.  Explore our resources to learn more about the benefits of regular checkups.</p>
+            <p>For more information visit the <a href="https://pmjay.gov.in/" style="color: #0044cc;">https://pmjay.gov.in/</a>. Here you will get all the government health related schmes</p>
+            <h3 style="text-decoration: underline;">Some government heath related schemes are as follows:</h3>
+            <h5>Ayushman Bharat</h5>
+            <p>Pradhan Mantri Jan Arogya Yojana (PMJAY): This scheme aims to provide health coverage to economically vulnerable families. It covers free medical checkups, treatments, and hospitalizations up to ₹5 lakh per family per year.</p>
+
+            <h5>Rashtriya Bal Swasthya Karyakram (RBSK)</h5>
+            <p> This scheme focuses on the health screening and early intervention services for children from birth to 18 years. It aims to cover defects at birth, deficiencies, diseases, and developmental delays, including disability.</p>
+
+            <h5>Pradhan Mantri Surakshit Matritva Abhiyan (PMSMA)</h5>
+            <p> This program offers free antenatal checkups to pregnant women on the 9th of every month. It aims to detect and manage high-risk pregnancies to reduce maternal and neonatal mortality rates.</p>
+
+            <h5>Mission Indradhanush</h5>
+            <p> Launched to ensure that children under two years of age and pregnant women are immunized against seven vaccine-preventable diseases. Regular health checkups and immunization drives are conducted under this mission.</p>
+
+            <h5>National Programme for Prevention and Control of Cancer, Diabetes, Cardiovascular Diseases and Stroke (NPCDCS)</h5>
+            <p>This program focuses on screening and early detection of non-communicable diseases (NCDs). It includes regular checkups and awareness campaigns to educate the public about lifestyle diseases.</p>
+            <h5>National Tobacco Control Programme (NTCP)</h5>
+            <p>This program aims to reduce tobacco consumption through awareness campaigns and regular health checkups to detect early signs of tobacco-related diseases.</p>
+
+            <h5>School Health Program</h5>
+            <p>Part of the Ayushman Bharat initiative, this program promotes health awareness among school children. It includes regular health checkups, screenings, and health education sessions in schools</p>
+        </div>
+    </section>
+
+    <section id="feedback">
+        <h2>Feedback</h2>
+        <form>
+            <label for="feedback-name">Name:</label>
+            <input type="text" id="feedback-name" name="name">
+            <label for="feedback-email">Email:</label>
+            <input type="email" id="feedback-email" name="email">
+            <label for="feedback-message">Feedback:</label>
+            <textarea id="feedback-message" name="message"></textarea>
+            <button type="submit">Submit Feedback</button>
+        </form>
+    </section>
+
+    <section id="contact">
+        <h2>Contact Us</h2>
+        <form>
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email">
+            <label for="message">Message:</label>
+            <textarea id="message" name="message"></textarea>
+            <button type="submit">Submit</button>
+        </form>
+        <p>Address: Kanpur Nagar</p>
+        <p>Phone: +91 8957783705</p>
+        <p>Email: kavyakanaujiya52@gmail.com</p>
+        <div class="social-media">
+            <a href="#" style="color: blue;">Facebook</a>
+            <a href="#" style="color: blue;">Twitter</a>
+            <a href="#" style="color: blue;">LinkedIn</a>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2024 VTYA Healthcare. All rights reserved.</p>
+        <p>Maintain By :- Kavya Kanaujiya</p>
+        <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a>
+        
+    </footer>
+    <script src="index.js"></script>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+</body>
+</html>
